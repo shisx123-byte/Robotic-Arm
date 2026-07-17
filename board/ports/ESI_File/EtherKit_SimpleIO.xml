@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    EtherKit Simple I/O Slave ESI File
+    固件对应: samplefeature.h ETHERCAT_FEATURE = SEMI_DEVICE
+    PDO 映射 (每个 I/O 点为独立 BOOL):
+
+      RxPDO, SM2 (1 字节):
+        0x7001:00 LED0_RED   (BOOL, 1 bit) — P14_3, active low
+        0x7002:00 LED1_BLUE  (BOOL, 1 bit) — P14_0, active low
+        0x7003:00 LED2_GREEN (BOOL, 1 bit) — P14_1, active low
+
+      TxPDO, SM3 (1 字节):
+        0x6001:00 KEY2 (BOOL, 1 bit) — P16_3, active low
+
+    Vendor ID 保持与官方 Renesas ESI 一致: #x00000766
+    ProductCode: #x00000912 (CDP 2port)
+-->
+<EtherCATInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+              Version="0.1"
+              xsi:noNamespaceSchemaLocation="EtherCATInfo.xsd">
+
+    <Vendor>
+        <Id>#x00000766</Id>
+        <Name>Renesas Electronics Corp.</Name>
+    </Vendor>
+
+    <Descriptions>
+        <Groups>
+            <Group SortOrder="1">
+                <Type>EtherKit I/O Group</Type>
+                <Name LcId="1033">EtherKit I/O Group</Name>
+            </Group>
+        </Groups>
+
+        <Devices>
+            <Device Physics="YY">
+                <Type ProductCode="#x00000912" RevisionNo="#x00000300">
+                    EtherKit Simple I/O Slave 2port
+                </Type>
+                <Name LcId="1033">EtherKit Simple I/O Slave 2port</Name>
+
+                <Info>
+                    <StateMachine>
+                        <Timeout>
+                            <PreopTimeout>2000</PreopTimeout>
+                            <SafeopOpTimeout>9000</SafeopOpTimeout>
+                            <BackToInitTimeout>5000</BackToInitTimeout>
+                            <BackToSafeopTimeout>200</BackToSafeopTimeout>
+                        </Timeout>
+                    </StateMachine>
+                    <Mailbox>
+                        <Timeout>
+                            <RequestTimeout>100</RequestTimeout>
+                            <ResponseTimeout>2000</ResponseTimeout>
+                        </Timeout>
+                    </Mailbox>
+                    <IdentificationReg134>true</IdentificationReg134>
+                </Info>
+
+                <GroupType>EtherKit I/O Group</GroupType>
+
+                <!-- SyncManager: SM0/1 (mailbox), SM2 (outputs 1 byte), SM3 (inputs 1 byte) -->
+                <Sm MinSize="128" MaxSize="1024" DefaultSize="256"
+                    StartAddress="#x1000" ControlByte="#x26" Enable="1">MBoxOut</Sm>
+                <Sm MinSize="128" MaxSize="1024" DefaultSize="256"
+                    StartAddress="#x1400" ControlByte="#x22" Enable="1">MBoxIn</Sm>
+                <Sm DefaultSize="1"
+                    StartAddress="#x1800" ControlByte="#x64" Enable="1">Outputs</Sm>
+                <Sm DefaultSize="1"
+                    StartAddress="#x1C00" ControlByte="#x20" Enable="1">Inputs</Sm>
+
+                <Fmmu>Outputs</Fmmu>
+                <Fmmu>Inputs</Fmmu>
+                <Fmmu>MBoxState</Fmmu>
+
+                <Mailbox DataLinkLayer="1">
+                    <CoE SdoInfo="1" PdoAssign="1" PdoConfig="1"
+                         CompleteAccess="1" SegmentedSdo="1"/>
+                </Mailbox>
+
+                <Dc>
+                    <OpMode>
+                        <Name>DC</Name>
+                        <Desc>DC-Synchron</Desc>
+                        <AssignActivate>#x0300</AssignActivate>
+                        <CycleTimeSync0 Factor="1">0</CycleTimeSync0>
+                        <CycleTimeSync1 Factor="1">0</CycleTimeSync1>
+                    </OpMode>
+                    <OpMode>
+                        <Name>Synchron</Name>
+                        <Desc>SM-Synchron</Desc>
+                        <AssignActivate>#x0000</AssignActivate>
+                    </OpMode>
+                </Dc>
+
+                <!-- ===== 过程数据 PDO ===== -->
+                <!-- RxPDO: 3 个 BOOL (LED0_RED, LED1_BLUE, LED2_GREEN) — 共 3 bit = 1 字节 -->
+                <RxPdo Fixed="1" Sm="2">
+                    <Index>#x1603</Index>
+                    <Name>Outputs</Name>
+                    <Entry>
+                        <Index>#x7001</Index>
+                        <SubIndex>0</SubIndex>
+                        <BitLen>1</BitLen>
+                        <Name>LED0_RED</Name>
+                        <DataType>BOOL</DataType>
+                    </Entry>
+                    <Entry>
+                        <Index>#x7002</Index>
+                        <SubIndex>0</SubIndex>
+                        <BitLen>1</BitLen>
+                        <Name>LED1_BLUE</Name>
+                        <DataType>BOOL</DataType>
+                    </Entry>
+                    <Entry>
+                        <Index>#x7003</Index>
+                        <SubIndex>0</SubIndex>
+                        <BitLen>1</BitLen>
+                        <Name>LED2_GREEN</Name>
+                        <DataType>BOOL</DataType>
+                    </Entry>
+                </RxPdo>
+
+                <!-- TxPDO: 1 个 BOOL (KEY2) — 共 1 bit = 1 字节 -->
+                <TxPdo Fixed="1" Sm="3">
+                    <Index>#x1A03</Index>
+                    <Name>Inputs</Name>
+                    <Entry>
+                        <Index>#x6001</Index>
+                        <SubIndex>0</SubIndex>
+                        <BitLen>1</BitLen>
+                        <Name>KEY2</Name>
+                        <DataType>BOOL</DataType>
+                    </Entry>
+                </TxPdo>
+
+                <Eeprom>
+                    <ByteSize>2048</ByteSize>
+                    <ConfigData>800E44EE10000000</ConfigData>
+                    <BootStrap>0010800080108000</BootStrap>
+                </Eeprom>
+
+            </Device>
+        </Devices>
+    </Descriptions>
+</EtherCATInfo>
