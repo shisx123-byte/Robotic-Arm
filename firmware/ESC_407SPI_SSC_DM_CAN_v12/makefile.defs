@@ -1,0 +1,60 @@
+# Extra sources for the DM EtherCAT prototype. RT-Thread Studio includes this
+# file from Debug/makefile; it can also regenerate native subdir.mk entries.
+
+DM_ROOT := D:/RT-ThreadStudio/workspace/ESC_407SPI_SSC_DM_CAN_v12
+DM_CFLAGS := -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 \
+	-O2 -ffunction-sections -fdata-sections -Wall -g -gdwarf-2 \
+	-DSOC_FAMILY_STM32 -DSOC_SERIES_STM32F4 -DUSE_HAL_DRIVER -DSTM32F407xx \
+	-std=gnu11
+DM_INCLUDES := \
+	-I"$(DM_ROOT)/drivers" \
+	-I"$(DM_ROOT)/drivers/include" \
+	-I"$(DM_ROOT)/drivers/include/config" \
+	-I"$(DM_ROOT)/libraries/CMSIS/Device/ST/STM32F4xx/Include" \
+	-I"$(DM_ROOT)/libraries/CMSIS/Include" \
+	-I"$(DM_ROOT)/libraries/CMSIS/RTOS/Template" \
+	-I"$(DM_ROOT)/libraries/STM32F4xx_HAL_Driver/Inc" \
+	-I"$(DM_ROOT)/libraries/STM32F4xx_HAL_Driver/Inc/Legacy" \
+	-I"$(DM_ROOT)" \
+	-I"$(DM_ROOT)/applications" \
+	-I"$(DM_ROOT)/applications/motor" \
+	-I"$(DM_ROOT)/applications/ssc/Inc" \
+	-I"$(DM_ROOT)/applications/ssc/port" \
+	-I"$(DM_ROOT)/cubemx/Inc" \
+	-I"$(DM_ROOT)/cubemx" \
+	-I"$(DM_ROOT)/rt-thread/components/drivers/include" \
+	-I"$(DM_ROOT)/rt-thread/components/drivers/spi" \
+	-I"$(DM_ROOT)/rt-thread/components/finsh" \
+	-I"$(DM_ROOT)/rt-thread/components/libc/compilers/common" \
+	-I"$(DM_ROOT)/rt-thread/components/libc/compilers/newlib" \
+	-I"$(DM_ROOT)/rt-thread/components/libc/posix/io/poll" \
+	-I"$(DM_ROOT)/rt-thread/components/libc/posix/io/stdio" \
+	-I"$(DM_ROOT)/rt-thread/components/libc/posix/ipc" \
+	-I"$(DM_ROOT)/rt-thread/include" \
+	-I"$(DM_ROOT)/rt-thread/libcpu/arm/common" \
+	-I"$(DM_ROOT)/rt-thread/libcpu/arm/cortex-m4" \
+	-include"$(DM_ROOT)/rtconfig_preinc.h"
+
+ifeq ($(filter ./applications/motor/dm_gateway.o,$(OBJS)),)
+C_SRCS += ../applications/motor/dm_gateway.c
+OBJS += ./applications/motor/dm_gateway.o
+C_DEPS += ./applications/motor/dm_gateway.d
+applications/motor/dm_gateway.o: ../applications/motor/dm_gateway.c
+	arm-none-eabi-gcc $(DM_CFLAGS) $(DM_INCLUDES) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
+endif
+
+ifeq ($(filter ./drivers/dm_can_board.o,$(OBJS)),)
+C_SRCS += ../drivers/dm_can_board.c
+OBJS += ./drivers/dm_can_board.o
+C_DEPS += ./drivers/dm_can_board.d
+drivers/dm_can_board.o: ../drivers/dm_can_board.c
+	arm-none-eabi-gcc $(DM_CFLAGS) $(DM_INCLUDES) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
+endif
+
+ifeq ($(filter ./rt-thread/components/drivers/can/can.o,$(OBJS)),)
+C_SRCS += ../rt-thread/components/drivers/can/can.c
+OBJS += ./rt-thread/components/drivers/can/can.o
+C_DEPS += ./rt-thread/components/drivers/can/can.d
+rt-thread/components/drivers/can/can.o: ../rt-thread/components/drivers/can/can.c
+	arm-none-eabi-gcc $(DM_CFLAGS) $(DM_INCLUDES) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
+endif
